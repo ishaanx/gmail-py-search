@@ -12,7 +12,7 @@ import sys
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-f = open("data.csv", "w", buffering=1000)
+f = open("data.csv", 'wt', buffering=1000, encoding='utf-8')
 f.write("Timestamp,Property,Reservation Type,Confirmation" + '\n')
 def main():
 
@@ -35,6 +35,7 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
 
     query=sys.argv[1]
+    print(query)
     
     response = service.users().messages().list(userId='me', q=query).execute()
 
@@ -60,7 +61,9 @@ def process_messages(service,messages):
                 base_string = msg['payload']['body']['data']
             if not base_string.endswith('=='):
                 base_string = base_string + '=='
+               
             payload = base64.b64decode(base_string)
+            payload = payload.decode("UTF-8")
             if payload.startswith('{"code-type-suffix":"'):
                 subbody = payload.replace('{"code-type-suffix":"', '')
                 subbody = subbody.split('"', 2)
@@ -76,5 +79,3 @@ def process_messages(service,messages):
 
 if __name__ == '__main__':
     main()
-
-
